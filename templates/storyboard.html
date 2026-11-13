@@ -1,0 +1,80 @@
+<!doctype html>
+<!-- Storyboard sheet: hand-drawn panels (p5.brush pencil + ink) with real screenshots, one panel per shot.
+     Filled and rendered by scripts/storyboard.mjs. Do not edit per film: edit build/storyboard.json. -->
+<html><head><meta charset="utf-8">
+<style>
+  :root { --paper: #f3efe6; --ink: #1c1b19; --muted: #6b665c; }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--paper); color: var(--ink); font-family: "Chalkboard SE", "Marker Felt", cursive; }
+  #sheet { position: relative; }
+  #title { position: absolute; left: 40px; top: 22px; font-size: 34px; font-weight: 700; }
+  #sub { position: absolute; left: 40px; top: 66px; font-size: 18px; color: var(--muted); font-family: Menlo, monospace; }
+  canvas { position: absolute; left: 0; top: 0; z-index: 1; }
+  .img { position: absolute; z-index: 0; object-fit: cover; filter: grayscale(1) contrast(1.1); opacity: .55; }
+  .say { position: absolute; z-index: 2; line-height: 1.05; font-weight: 700; white-space: pre; transform: translate(-50%, -50%); text-align: center; }
+  .cap { position: absolute; font-size: 15px; line-height: 1.3; }
+  .cap b { font-size: 18px; }
+  .cap .k { font-family: Menlo, monospace; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+</style></head><body><div id="sheet"><div id="title"></div><div id="sub"></div></div>
+<script src="__P5__"></script><script src="__BRUSH__"></script>
+<script>
+const SB = __DATA__;
+const L = SB.layout;                         // computed by storyboard.mjs: pw, ph, cols, gap, capH, top, W, H
+const sheet = document.getElementById('sheet');
+const ACC = SB.accent || '#e0a800';
+document.getElementById('title').textContent = SB.title || 'Storyboard';
+document.getElementById('sub').textContent = `${SB.fmt || '16x9'} · ${SB.panels.length} shots · ${SB.bpm ? SB.bpm + ' BPM · ' : ''}${SB.note || ''}`;
+sheet.style.width = L.W + 'px'; sheet.style.height = L.H + 'px';
+
+const origin = i => ({ x: L.gap + (i % L.cols) * (L.pw + L.gap), y: L.top + Math.floor(i / L.cols) * (L.ph + L.capH + L.gap) });
+const el = (cls, css, html) => { const d = document.createElement('div'); d.className = cls; Object.assign(d.style, css); d.innerHTML = html; sheet.appendChild(d); return d; };
+const esc = s => String(s ?? '').replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+
+// HTML layer: real screenshots, on-screen words, captions under each panel.
+SB.panels.forEach((p, i) => {
+  const o = origin(i);
+  for (const it of p.draw || []) {
+    const P = (x, y) => [o.x + x * L.pw, o.y + y * L.ph];
+    if (it[0] === 'img') { const [x, y] = P(it[2], it[3]); const im = document.createElement('img'); im.className = 'img'; im.src = it[1];
+      Object.assign(im.style, { left: x + 'px', top: y + 'px', width: it[4] * L.pw + 'px', height: it[5] * L.ph + 'px' }); sheet.appendChild(im); }
+    if (it[0] === 'text') { const [x, y] = P(it[1], it[2]); el('say', { left: x + 'px', top: y + 'px', fontSize: it[3] * L.ph + 'px', color: it[5] || 'var(--ink)' }, esc(it[4])); }
+  }
+  el('cap', { left: o.x + 'px', top: o.y + L.ph + 8 + 'px', width: L.pw + 'px' },
+    `<b>${p.n ?? i + 1}</b> <span class="k">${esc(p.t)}${p.cam ? ' · cam: ' + esc(p.cam) : ''}</span><br>${esc(p.shot)}` +
+    (p.vo ? `<br><span class="k">says</span> “${esc(p.vo)}”` : '') +
+    (p.sfx ? `<br><span class="k">sound</span> ${esc(p.sfx)}` : '') +
+    (p.broll ? `<br><span class="k">b-roll</span> ${esc(p.broll)}` : ''));
+});
+
+// Brush layer: panel frames and the sketch itself, deterministic (seeded).
+function setup() {
+  createCanvas(L.W, L.H, WEBGL); pixelDensity(1); clear(); brush.load();
+  brush.seed(SB.seed || 'storyboard');
+  translate(-width / 2, -height / 2);
+  SB.panels.forEach((p, i) => {
+    const o = origin(i), X = x => o.x + x * L.pw, Y = y => o.y + y * L.ph, S = s => s * L.pw;
+    brush.noFill(); brush.noHatch();
+    brush.set('rotring', '#1c1b19', 1.2); brush.rect(o.x, o.y, L.pw, L.ph);      // panel frame
+    for (const it of p.draw || []) {
+      const [k, ...a] = it; brush.noFill(); brush.noHatch();
+      if (k === 'box')    { brush.set('HB', '#2a2925', 1); brush.rect(X(a[0]), Y(a[1]), S(a[2]), a[3] * L.ph); }
+      if (k === 'fill')   { brush.noStroke(); brush.hatch(4, 30, { rand: 0.08 }); brush.setHatch('marker2', a[4] || ACC, 1.2); brush.rect(X(a[0]), Y(a[1]), S(a[2]), a[3] * L.ph); brush.noHatch(); } // highlighter: watercolour fill mixes with the transparent canvas and goes muddy
+      if (k === 'hatch')  { brush.noStroke(); brush.hatch(6, 45, { rand: 0.15 }); brush.setHatch('HB', '#55524b', 0.7); brush.rect(X(a[0]), Y(a[1]), S(a[2]), a[3] * L.ph); brush.noHatch(); }
+      if (k === 'circle') { brush.set('pen', a[3] || ACC, 1.6); brush.circle(X(a[0]), Y(a[1]), S(a[2]), true); }
+      if (k === 'line')   { brush.set('2B', '#2a2925', 1); brush.line(X(a[0]), Y(a[1]), X(a[2]), Y(a[3])); }
+      if (k === 'arrow')  { // motion / camera arrow, in the accent ink
+        brush.set('pen', a[4] || ACC, 1.8); const x1 = X(a[0]), y1 = Y(a[1]), x2 = X(a[2]), y2 = Y(a[3]);
+        brush.line(x1, y1, x2, y2); const ang = Math.atan2(y2 - y1, x2 - x1), h = Math.min(L.pw, L.ph) * 0.06;
+        brush.line(x2, y2, x2 - h * Math.cos(ang - 0.5), y2 - h * Math.sin(ang - 0.5));
+        brush.line(x2, y2, x2 - h * Math.cos(ang + 0.5), y2 - h * Math.sin(ang + 0.5)); }
+      if (k === 'figure') { // stick figure: x, y = feet, h = height (panel heights)
+        const x = X(a[0]), y = Y(a[1]), h = a[2] * L.ph; brush.set('2B', '#1c1b19', 1.2);
+        brush.circle(x, y - h * 0.88, h * 0.12, true); brush.line(x, y - h * 0.76, x, y - h * 0.38);
+        brush.line(x, y - h * 0.62, x - h * 0.2, y - h * 0.45); brush.line(x, y - h * 0.62, x + h * 0.2, y - h * 0.45);
+        brush.line(x, y - h * 0.38, x - h * 0.14, y); brush.line(x, y - h * 0.38, x + h * 0.14, y); }
+    }
+  });
+  brush.reDraw(); noLoop();
+  window.__done = true;
+}
+</script></body></html>
