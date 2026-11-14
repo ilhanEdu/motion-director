@@ -49,6 +49,20 @@ The honest record from the author's first 13 cuts: **4 approved, 3 rejected, 3 s
 4. **Critics.** A viewer who never read the brief, a craft critic and a sound critic. The lowest score stands.
 5. **Debrief.** You tap "Love it", "Mostly good" or "Redo parts". Your exact words go into memory.
 
+## What is real, and what is not
+
+The agents are Claude subagents, each with a written job, its own inputs and outputs, and real tools it must run. Nothing is faked with a prompt alone.
+
+| Job | What actually runs |
+|---|---|
+| Hear the sound | [earshot](https://github.com/Leonxlnx/earshot): an audio model that tags sounds, scores speech vs music, and measures LUFS, peaks and onsets |
+| Time your words | Whisper word timestamps, then `align.py` puts the script's spelling on them (Hinglish included) |
+| Find the beat | `beats.py` (librosa): BPM, beat grid, downbeats in frames |
+| Check the picture | `qa.sh`: contact sheet, cut-by-cut continuity strips, frame-by-frame jitter, loudness |
+| Render | `render.mjs`: frame-exact headless Chrome with real motion blur |
+
+The limits, plainly: earshot measures sound, it does not have taste. It can tell you the mix is clean and the voice leads, not that the music is good. That call is yours, and the memory keeps it. The first film for a new user runs on the default rules; it gets closer to your taste with every verdict.
+
 <details>
 <summary><b>See a real storyboard</b></summary>
 <br>
@@ -116,7 +130,7 @@ Core rules never change on their own. A rule change is proposed, and applied onl
 
 - **Quota.** Measured on one Standard film: board critic 115,289 tokens, viewer critic 93,105 to 129,867, craft and sound critic 191,457. On a small plan, start with a 6 s loop on the Short tier.
 - **Time.** A full render of a 2 min film can take close to an hour. The crew renders stills first and patches changed beats instead of re-rendering.
-- **Tools.** `setup.sh` prints `ok` or `MISS` for ffmpeg, Node 22+, uv, Google Chrome and npm (Blender and gh are optional). Install what it lists as `MISS`. Third-party skill repos are pinned to tested commits. Check the install any time with `sh ~/.claude/skills/motion-director/scripts/selftest.sh`.
+- **Tools.** `setup.sh` prints `ok` or `MISS` for ffmpeg, Node 22+, uv, Google Chrome and npm (Blender and gh are optional). Install what it lists as `MISS`. Third-party skill repos are pinned to tested commits. Check the install any time with `sh ~/.claude/skills/motion-director/scripts/selftest.sh`, and add `--tools` once to run Whisper, earshot and the beat tracker for real (about 1 GB of downloads the first time).
 - **Platform.** Built and tested on macOS. Linux and Windows are untested, and `matte.swift` is Mac only. The folder must sit at `~/.claude/skills/motion-director`.
 - **Sound.** Claude cannot hear, so sound is measured with earshot, never guessed.
 - **Generated footage.** Bring your own Gemini, Veo or Midjourney clips. The crew writes the prompts and finishes the shots.

@@ -61,3 +61,4 @@ chk blender "optional, photoreal 3D: brew install --cask blender"; chk gh "optio
 command -v blender >/dev/null 2>&1 && echo "     blender: $(blender --version 2>/dev/null | head -1)"
 node -e 'process.exit(+process.versions.node.split(".")[0] >= 22 ? 0 : 1)' 2>/dev/null || echo "WARN node < 22: render.mjs needs the built-in WebSocket"
 [ $miss = 0 ] && echo "setup done" || echo "setup done, install the MISS items above"
+echo "then check the real tools once (whisper, earshot, beats; ~1 GB first run): sh $SK/scripts/selftest.sh --tools"
