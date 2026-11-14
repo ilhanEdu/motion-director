@@ -48,7 +48,7 @@ Every job: the `ok` / `MISS` lines `setup.sh` prints are the truth about which t
 - **Talk** (the user speaks: YouTube, Shorts, explainers, reels with a voiceover, face cam). Voice first: the crew writes the script and shoot guide, the user records, then picture, effects and sound are cut to their words. Never build picture first and ask the user to read over it.
 - **Full** (a film from an idea, music-led, no voice): phases 0 to 5.
 - **Edit** (the user brings footage): phases 0 to 5 with `motion-editor` in wave 1 and Remotion as the main engine.
-- **Revise** (the user dislikes an existing film): log their words first (phase 5 step 3), run the critic on the current file, fix the top 3 gaps, re-run phase 4.
+- **Revise** (the user dislikes an existing film): log their words first (phase 5 step 3). If the user named the fixes, build those first and skip the critic; run the critic on the current file only when they gave no specifics or ask for a score. Fix the top 3 gaps, then re-run phase 4 on the changed beats only (see "Cost rules").
 - **Tweak** (one change): no agents. Edit, render stills of the changed moment, show.
 - **Match** (the user gives one or more reference videos: "make it like this"): `motion-scout` in reference mode measures them → `research/REFERENCE.md` (cut rate, shot lengths, type, palette, pace, sound, hook shape). The film adopts the method, never the content: the art director's direction A is the matched one, the scriptwriter follows its pace. Then the normal phases for Talk, Full or Edit.
 - **Sweep** ("what's trending", or the weekly task): `motion-scout` in sweep mode. Report its top 5 in a table.
@@ -180,3 +180,17 @@ No film reaches the user (not a draft, not "have a look") until a critic pass ha
 - No film repeats the last film's template (see "No template"), unless it is a series.
 - Never start a film the quota cannot finish without telling the user the numbers and offering the split.
 - Memory and playbooks are append-only (`DIGEST.md` is the one rewritten file). Never edit SK files or PROFILE rules without the user's yes.
+
+## Cost rules
+
+These cut redo cost. They do not relax any quality rule above.
+
+1. **Carry over what the user liked.** Before a rebuild or a new version, read the film's `TASTE.md` rows and list the beats the user liked in the previous cut. Keep them (bigger, in the new look). Redesign only what they rejected.
+2. **Ask before any render.** Scope questions (2-3, recommended default first) go out before the first full render, not after it. A full render of a 2 min film can take close to an hour.
+3. **Stills first.** Every changed beat gets stills (`ONLY=t1,t2,...`) tiled into one sheet and read before any render. Most layout faults show there in under 2 minutes.
+4. **Patch, never re-render.** After one full render exists, a changed beat is rendered as its own frame range (`F0`/`F1`) and spliced by frame number in the final encode (`trim` + `concat`). A second full render needs a reason the patch cannot cover (a global change such as blur samples or a motif in every frame).
+5. **Batch global changes.** Collect every film-wide change (motif removal, blur settings, shared prop redesign) into ONE render. Ask "anything else film-wide?" before starting it.
+6. **Safe encode.** Write to `out/.tmp-<name>.mp4`, rename on success, `ffprobe` the result. Finals: crf 18, maxrate 20M. The lossless picture stays in `build/renders/`.
+7. **Critics once, on the cut the user will see.** One critic pass per delivered cut, after stills pass. Do not re-run critics on a cut the user has already watched and approved; offer their open findings as optional fixes with a time estimate.
+8. **Props carry real captures.** A drawn monitor or phone shows a real screenshot of the product. Ask the user for a full-screen capture at intake; blur tabs, wallet and balances before use.
+9. **No roaming motif by default.** No dot, slash, cursor or rail line that sits in every frame unless PROFILE "Loved" asks for one. Lines belong to real things on screen.

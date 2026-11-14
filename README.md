@@ -1,73 +1,135 @@
+<p align="center"><img src="docs/hero.svg" alt="motion-director. One line in. A film out." width="100%"></p>
+
 # motion-director
 
-A film crew for Claude Code. You are the ideator: give it one line ("a 30 s Short about my app's fee cut"), your own footage, or your voice. The crew judges what will work, sets a budget, shows you a hand-drawn storyboard, tells you exactly what to record or generate, then builds, critiques and hands back an MP4 with an honest score.
+**You are not a video editor. You have an idea. That is enough.**
 
-## Install
+motion-director is a skill for Claude Code that works like a film crew. You type one line, or drop in your footage or your voice. Nine agents and four critics plan it, storyboard it, build it, judge it and hand you an MP4 with an honest score.
 
-Built and tested on macOS with Claude Code. Linux and Windows are untested (one script, `matte.swift`, is Mac only).
+| You bring | The crew brings |
+|---|---|
+| One line, a story, a reference video, raw clips or a voice take | Producer, scout, researcher, scriptwriter, art director, asset hunter, editor, sound designer, critics |
+| Your taste, one tap at a time | A memory of everything you liked and rejected |
 
-Tell your agent: "Install the skill from https://github.com/ilhanEdu/motion-director", or do it yourself:
+## Real films it made
 
-1. `git clone https://github.com/ilhanEdu/motion-director.git ~/.claude/skills/motion-director`
-2. `sh ~/.claude/skills/motion-director/scripts/setup.sh`
-3. Install anything it prints as `MISS` (ffmpeg, Node 22+, uv, Google Chrome, npm; Blender and gh are optional)
-4. In Claude Code, type `/motion-director` and your idea
+<p align="center"><img src="docs/demo-countdown.gif" alt="A 6 second countdown loop made with motion-director: two rivals, a panda mascot and a filling clock dial, ROUND 1 ENDS" width="400"></p>
 
-The folder must sit at `~/.claude/skills/motion-director`: the crew's files point there. Your taste, memory and playbooks live outside it in `~/.claude/motion-director/`, so `git pull` updates the crew and never touches what it learned about you.
+A 6 s countdown loop for a trading competition, Short tier. Verdict: "Love it".
 
-Check the install any time with `sh ~/.claude/skills/motion-director/scripts/selftest.sh`.
+<p align="center"><img src="docs/demo-ep01-sheet.jpg" alt="Six frames from a 99 second vertical Short made with motion-director: heavy headlines, a real leaderboard screenshot, a talking avatar, real rules text" width="100%"></p>
 
-Things to type:
-- `/motion-director a 30 s Short about my app's new feature`
-- `/motion-director make it like this video: <link>` (it measures the reference and adopts the method)
-- `/motion-director edit these clips into a reel: <folder>`
-- `/motion-director what's trending`
+Six frames from a 99 s vertical Short in Hinglish, Grand tier. It took 8 versions to ship; the last one was posted on Instagram and YouTube Shorts.
 
-The first run asks 4 questions about your taste and writes `~/.claude/motion-director/PROFILE.md`.
+The full record from the author's first 13 cuts (28 Oct to 13 Nov 2026): 4 approved, 3 rejected, 3 sent back for fixes, 3 with no verdict logged. The rejections are why the memory exists.
+
+## Start in 3 steps
+
+```bash
+git clone https://github.com/ilhanEdu/motion-director.git ~/.claude/skills/motion-director
+```
+
+```bash
+sh ~/.claude/skills/motion-director/scripts/setup.sh
+```
+
+Then open Claude Code and type:
+
+```
+/motion-director a 30 s Short about my app's new feature
+```
+
+Or tell your agent: "Install the skill from https://github.com/ilhanEdu/motion-director".
+
+`setup.sh` prints `ok` or `MISS` for each tool (ffmpeg, Node 22+, uv, Google Chrome, npm; Blender and gh are optional). Install what it lists as `MISS`. Check the install any time with `sh ~/.claude/skills/motion-director/scripts/selftest.sh`.
+
+## Say this
+
+| You type | What happens |
+|---|---|
+| `/motion-director a 30 s Short about <your idea>` | Full film from one line |
+| `/motion-director make it like this video: <link>` | The scout measures the reference (cut rate, type, palette, pace) and the crew adopts the method in your brand |
+| `/motion-director edit these clips into a reel: <folder>` | Your footage, cut to the beat, motion design inside the shots |
+| `/motion-director I want to talk on camera about <topic>` | Script and shoot guide first. You record. The edit follows your words |
+| `/motion-director what's trending` | A sweep of current edits, tools and sounds, filed into the crew's playbooks |
+| `/motion-director learn from this: <link>` | The crew reads it and keeps what fits your taste |
+
+<p align="center"><img src="docs/crew.svg" alt="The crew in order: intake, crew, storyboard, build, critics, debrief" width="100%"></p>
 
 ## How a film gets made
 
-1. **Intake**: the producer checks how much of your plan's quota is left, reads your idea, writes 3 pitches (each with why it works and its risk), and proposes a budget tier: Short, Standard or Grand. If the film does not fit what is left, it says so with the numbers and offers a split: part today, the rest after your limit resets. You pick once.
-2. **Crew**: research, assets, script, looks, in parallel. Only the agents your tier pays for run.
-3. **Storyboard**: a hand-drawn sheet (p5.brush), one panel per shot, with the words, the sound and the B-roll under each. A board critic checks it first (hook, repeated layouts, too close to your last films). You approve or name the panels to change.
-4. **Talking videos stop here for you**: you get a shoot guide (what to record, how, which lines, which assets to generate, with prompts). You record; the edit, effects and sound follow your words.
-5. **Sample first**: for anything over 30 s you see the first 10 to 15 s finished and say yes before the rest is built.
-6. **Build, QA, critics**: continuity and jitter checks, then separate critics judge it, each alone: a viewer who has not read the brief (when would I scroll away), a craft critic (motion, continuity, type), a sound critic. The merged score is calibrated against your past verdicts.
-7. **Debrief**: one tap ("Love it", "Mostly good", "Redo parts"). Your words go into memory, and the next film starts from them. A thing you reject can be banned for good with one more tap.
-8. **Clean up**: when you are happy, it asks before moving the film's working files to the Trash and tells you the space freed.
+1. **Intake.** The producer checks how much of your plan's quota is left, then pitches 3 ideas, each with why it works and its risk. If the film is bigger than what you have left, it tells you the numbers and offers a split: part today, the rest after your limit resets.
+2. **Crew.** Trends, references, script, looks and assets, in parallel. Only the agents your budget tier pays for run.
+3. **Storyboard.** A hand-drawn sheet, one panel per shot, with the words, the sound and the B-roll. A board critic checks it before you see it. You approve, or name the panels to change.
+4. **Your part.** For a talking video you get a shoot guide: what to record, how, which lines, and exact prompts for anything you need to generate.
+5. **Sample.** For anything over 30 s you see the first 10 to 15 s finished and say yes before the rest is built.
+6. **Build.** GSAP, Remotion, three.js or Blender, picked per shot. Real recorded sound on every event.
+7. **Critics.** Three views, each judging alone: a viewer who never read the brief, a craft critic, a sound critic. The lowest score stands.
+8. **Debrief.** One tap: "Love it", "Mostly good" or "Redo parts". Your words go into memory. Then it asks before cleaning up the working files.
 
-Give it a reference video ("make it like this") and the scout measures it (cut rate, type, palette, pace) and the crew adopts the method in your own brand.
+This is the real sheet the skill draws before it builds anything (rendered from the example file in this repo):
 
-## The crew (and the model each runs on)
+<p align="center"><img src="docs/storyboard.png" alt="A storyboard sheet drawn by the skill: six hand-drawn panels with shot, voiceover and sound notes" width="100%"></p>
+
+## The crew
 
 | Agent | Model | Job |
 |---|---|---|
-| producer | sonnet | what will work and what won't, 3 pitches, the budget tier |
-| scout | sonnet | trends, new tools, links you share; upgrades the crew's playbooks |
-| researcher | sonnet | 5-10 real reference films and the techniques behind them |
-| scriptwriter | sonnet (opus on Grand) | concepts, dialogue and voiceover with the right tone, shoot guide, storyboard |
-| art director | sonnet (opus on Grand) | visual directions with real styleframes on one board |
-| asset hunter | sonnet | your real logo and screenshots, music with measured BPM, B-roll (memes, movie moments, stock) |
-| editor | sonnet | your voice or footage: transcript, clean take, word timeline, beat cuts |
-| sound designer | sonnet | real licensed sounds on every event, your voice first, -14 LUFS |
-| critics | opus / sonnet | one agent, four lenses run separately: board (before the build), viewer, craft, sound |
+| Producer | sonnet | Reads your quota, judges what will work, 3 pitches, the budget |
+| Scout | sonnet | Trends, new tools, links you share. Upgrades the crew's playbooks |
+| Researcher | sonnet | 5 to 10 real reference films and the techniques behind them |
+| Scriptwriter | sonnet, opus on Grand | Concepts, dialogue, voiceover, shoot guide, storyboard panels |
+| Art director | sonnet, opus on Grand | Visual directions with real styleframes on one board |
+| Asset hunter | sonnet | Your real logo and screenshots, licensed music with measured BPM, B-roll |
+| Editor | sonnet | Your voice or footage: transcript, clean take, word timeline, beat cuts |
+| Sound designer | sonnet | Real licensed sounds on every event, your voice first, -14 LUFS |
+| Critic | opus and sonnet | One agent, four lenses run apart: board, viewer, craft, sound |
+| Director | your session | Runs the crew, does the build, logs your feedback |
 
-## Memory and self-upgrade
+## Three budget tiers
 
-`~/.claude/motion-director/` holds dated, append-only records: what you liked and rejected (`TASTE.md`), every film with your verdict (`FILMS.md`), lessons, trends, sources, a vetted music library with measured BPM (`MUSIC.md`), each film's style signature (`STYLES.md`, so the next film is never the last one's template), the measured cost of every agent run (`SPEND.md`, so budgets come from your own numbers), and one playbook per crew role (`playbooks/`). The scout adds new techniques to the playbooks from its sweeps and from any link you share; techniques get marked proven or dropped by your verdicts. The core rules in this folder never change on their own: a rule change is proposed, and applied only when you say yes.
+| Tier | For | Choices you see | Critics |
+|---|---|---|---|
+| Short | A reel, a Short, a repeat format | 1 concept, 1 look | 1 pass and 1 fix |
+| Standard | A promo, an episode | 2 concepts, 2 looks | Board, viewer and craft, up to 2 loops |
+| Grand | A launch film | 2 concepts, 3 looks | All four lenses, up to 3 loops |
 
-## Asset library and cleanup
+The producer picks the smallest tier that can do the job and you approve it once.
 
-Every film lives in `~/Downloads/motion/<slug>/` (change the root in your PROFILE). When you say a film is done and say yes to the clean-up, the director runs `scripts/archive.py`: the final, the scripts and credits stay; reusable assets (brand, characters, screens, fonts, music, real SFX, 3D, HDRIs) are copied once into `~/Downloads/motion/assets/` (listed in `INDEX.md`); renders, versions, stems and caches go to the Trash. The next film starts from that library before searching the web.
+## It learns you
+
+Everything it learns lives in `~/.claude/motion-director/`, outside this repo, so `git pull` updates the crew and never touches your memory.
+
+| File | Holds |
+|---|---|
+| `PROFILE.md` | Your taste, banned looks, wording rules |
+| `TASTE.md` | What you liked and rejected, in your exact words |
+| `STYLES.md` | Each film's style, so the next film is never the last one's template |
+| `SPEND.md` | The measured cost of every agent run, so budgets come from your own numbers |
+| `LESSONS.md`, `DIGEST.md` | What went wrong in production, and the standing lessons per role |
+| `TRENDS.md`, `SOURCES.md`, `MUSIC.md` | Dated trends, tools, and a vetted music library |
+| `playbooks/` | One per crew role. Techniques are marked proven or dropped by your verdicts |
+
+The core rules in this repo never change on their own. A rule change is proposed and applied only when you say yes.
+
+## Rules the crew does not break
+
+- Real data only. No invented numbers, quotes or UI.
+- Hook in the first 2 seconds. Headlines of 1 to 3 words, never cropped.
+- Every cut on a measured beat or a spoken word. Every event has a real recorded sound.
+- No film reaches you before the critics have seen it.
+- It never posts or uploads anything. You do that.
 
 ## Limits
 
-- Claude cannot hear. Sound is measured with earshot (realness, match, loudness), never guessed.
-- Generated footage needs your own Gemini / Veo / Midjourney; the crew writes the prompts and chains clips so they join.
-- Memes and movie clips are copyrighted. The asset hunter downloads them only if your PROFILE allows it, and the risk is yours.
-- Plans report quota as a percent, not tokens, and only some apps expose it to the agent (the Claude desktop app does). Elsewhere it asks you for the `/usage` numbers. Token allotments are instructions to each agent plus measurement afterwards, not a hard stop.
-- The first film of each tier has no cost history, so its budget is counted in agent runs and measured for next time.
-- It never posts or uploads anything.
+- Built and tested on macOS with Claude Code. Linux and Windows are untested, and one script (`matte.swift`) is Mac only.
+- The folder must sit at `~/.claude/skills/motion-director`. The crew's files point there.
+- Claude cannot hear. Sound is measured with earshot, never guessed.
+- Generated footage needs your own Gemini, Veo or Midjourney. The crew writes the prompts.
+- It is not cheap on quota. Measured on one Standard film: board critic 115,289 tokens, viewer critic 93,105 to 129,867, craft and sound critic 191,457. On a small plan, start with a 6 s loop on the Short tier.
+- A full render of a 2 min film can take close to an hour. The crew renders stills first and patches changed beats instead of re-rendering.
+- Plans report quota as a percent, and only some apps show it to the agent (the Claude desktop app does). Elsewhere it asks you for your `/usage` numbers. Token budgets per agent are instructions plus measurement, not a hard stop.
+- Memes and movie clips are copyrighted. They are used only if your profile allows it, at your risk.
 
 ## Licence
 

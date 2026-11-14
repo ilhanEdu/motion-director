@@ -3,7 +3,7 @@
 // Run from the film's build/ folder (serves it as web root). Page must set window.ready, window.DUR, window.seek(t), optional window.CUES.
 // Fast moves: the page may set window.FAST = [[start,end],...] seconds (whips, big camera moves). Those frames get SUBFAST (24) samples,
 // the rest SUB; each normal sample is written SUBFAST/SUB times so tmix stays constant. 8 samples ghost on whips (LESSONS 2026-10-31).
-// Env: CHROME (path) PAGE (promo.html) FPS (60) SUB (8) SUBFAST (24) FMT (16x9|4x5|9x16) CUT (master|ext|30|15|6) WORKERS (1) ONLY=1,2.5 (stills) AUDIO=wav OUT positional.
+// Env: CHROME (path) PAGE (promo.html) FPS (60) SUB (8) SUBFAST (24) FMT (16x9|4x5|9x16) CUT (master|ext|30|15|6) WORKERS (1) ONLY=1,2.5 (stills) F0/F1 (frame range, for patching one beat) AUDIO=wav OUT positional.
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
 import { statSync, createReadStream, writeFileSync, unlinkSync } from 'node:fs';
@@ -71,10 +71,11 @@ if (only) {
   const SF = +process.env.SUBFAST || 24, MAXS = FAST.length ? SF : SUB;
   if (MAXS % SUB) throw new Error(`SUBFAST (${SF}) must be a multiple of SUB (${SUB})`);
   if (FAST.length) console.log(`fast ranges ${JSON.stringify(FAST)}: ${SF} samples there, ${SUB} elsewhere`);
-  const nF = Math.round(dur * FPS), per = Math.ceil(nF / WORKERS), parts = [];
+  const nF = Math.round(dur * FPS), lo = +process.env.F0 || 0, hi = Math.min(nF, +process.env.F1 || nF);   // F0/F1: patch one frame range
+  const per = Math.ceil((hi - lo) / WORKERS), parts = [];
   const t0 = Date.now();
   await Promise.all(Array.from({ length: WORKERS }, async (_, k) => {
-    const f0 = k * per, f1 = Math.min(nF, f0 + per); if (f0 >= f1) return;
+    const f0 = lo + k * per, f1 = Math.min(hi, f0 + per); if (f0 >= f1) return;
     const part = `renders/.part-${k}.mp4`; parts[k] = part;
     const b = await browser(k);
     const ff = spawn('ffmpeg', ['-y', '-v', 'error', '-f', 'image2pipe', '-framerate', FPS * MAXS, '-i', '-',

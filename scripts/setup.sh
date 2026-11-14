@@ -25,10 +25,16 @@ for f in "$SK"/templates/playbooks/*.md; do [ -e "$MD/playbooks/$(basename "$f")
 V="$MD/vendor"
 if [ ! -e "$V" ]; then
   mkdir -p "$V"
-  for r in greensock/gsap-skills:greensock-gsap-skills remotion-dev/skills:remotion-dev-skills \
-           CloudAI-X/threejs-skills:CloudAI-X-threejs-skills Leonxlnx/earshot:Leonxlnx-earshot Clipwing/skills:Clipwing-skills; do
-    git clone --depth 1 "https://github.com/${r%%:*}.git" "$V/${r##*:}"
-  done
+  # Pinned to tested commits, so an upstream change cannot break a new install. Bump after testing.
+  while read -r repo dir sha; do
+    git init -q "$V/$dir" && git -C "$V/$dir" fetch -q --depth 1 "https://github.com/$repo.git" "$sha" && git -C "$V/$dir" checkout -q FETCH_HEAD || { echo "FAIL fetching $repo at $sha"; exit 1; }
+  done <<PINS
+greensock/gsap-skills greensock-gsap-skills aed9cfd3277740755f6bfc1155c7aa645403b760
+remotion-dev/skills remotion-dev-skills 30d4553ecd46fbc5212fd0ff006ae43af522158b
+CloudAI-X/threejs-skills CloudAI-X-threejs-skills 0e181866f095b5f06d005133876e926515390d95
+Leonxlnx/earshot Leonxlnx-earshot 591fa3e028032e6dce56620a20e932e35667e8d8
+Clipwing/skills Clipwing-skills edbefcbc3474869e6cc1e8a7ca583b0efd0dab7e
+PINS
 fi
 if [ "$1" != "--no-sound" ] && [ ! -x "$V/earshot-venv/bin/python" ] && command -v uv >/dev/null; then
   echo "installing earshot (CPU torch, a few hundred MB)..."
