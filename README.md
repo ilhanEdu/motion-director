@@ -41,7 +41,7 @@ The honest record from the author's first 13 cuts: **4 approved, 3 rejected, 3 s
 
 ## How a film gets made
 
-<p align="center"><img src="docs/crew.svg" alt="The crew in order: intake, crew, storyboard, build, critics, debrief" width="100%"></p>
+<p align="center"><img src="docs/crew.png" alt="Pixel crew chart: you give the idea to the director, who runs 9 pixel agents in four groups (plan, write and look, cut and sound, judge); every verdict goes into memory" width="100%"></p>
 
 1. **Pitch.** The producer reads your quota and pitches 3 ideas, each with what works and what could fail.
 2. **Storyboard.** A hand-drawn sheet, one panel per shot, before anything renders.
