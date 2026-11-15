@@ -63,7 +63,7 @@ AESW="$V/aes-hf/hub/models--facebook--audiobox-aesthetics/snapshots/9b1dd8e5df9a
 if [ "$1" != "--no-sound" ] && { [ ! -f "$AESW" ] || [ ! -x "$V/aes-venv/bin/python" ]; } && command -v uv >/dev/null; then
   echo "installing audiobox-aesthetics (torch + 415 MB weights)..."
   uv venv -q --allow-existing --python 3.12 "$V/aes-venv"
-  uv pip install -q --python "$V/aes-venv/bin/python" audiobox_aesthetics==0.0.4 || echo "WARN audiobox-aesthetics install failed: aes.py will SKIP"
+  uv pip install -q --python "$V/aes-venv/bin/python" audiobox_aesthetics==0.0.4 requests || echo "WARN audiobox-aesthetics install failed: aes.py will SKIP"
   HF_HOME="$V/aes-hf" "$V/aes-venv/bin/python" -I -c "from huggingface_hub import snapshot_download as s; p = s('facebook/audiobox-aesthetics', allow_patterns=['config.json', 'model.safetensors']); assert p.endswith('9b1dd8e5df9af7216e836a98974fe3b82c56ded6'), 'new upstream revision, not tested: ' + p" 2>&1 | tail -1 || true
 fi
 

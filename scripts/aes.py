@@ -21,12 +21,15 @@ try:
     import numpy as np
     import torch
     from audiobox_aesthetics.infer import initialize_predictor
-except ImportError:
+except ImportError as e:
     py = f"{MD}/vendor/aes-venv/bin/python"
-    if os.path.exists(py) and sys.executable != py:
-        os.execv(py, [py, "-I", __file__, *sys.argv[1:]])
-    print("SKIP aes: not installed (run setup.sh without --no-sound)")
-    sys.exit(0)
+    if not os.path.exists(py):
+        print("SKIP aes: not installed (run setup.sh without --no-sound)")
+        sys.exit(0)
+    if os.environ.get("AES_IN_VENV"):
+        sys.exit(f"aes venv is broken ({e}): re-run setup.sh")
+    os.environ["AES_IN_VENV"] = "1"
+    os.execv(py, [py, "-I", os.path.abspath(__file__), *sys.argv[1:]])
 
 SR, WIN = 44100, 10
 
