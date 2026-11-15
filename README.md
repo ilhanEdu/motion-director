@@ -56,12 +56,13 @@ The agents are Claude subagents, each with a written job, its own inputs and out
 | Job | What actually runs |
 |---|---|
 | Hear the sound | [earshot](https://github.com/Leonxlnx/earshot): an audio model that tags sounds, scores speech vs music, and measures LUFS, peaks and onsets |
+| Catch a bad recording | `aes.py`: Meta's [audiobox-aesthetics](https://github.com/facebookresearch/audiobox-aesthetics) scores your voice take and the final mix for noise, echo and distortion. It is never used to pick music |
 | Time your words | Whisper word timestamps, then `align.py` puts the script's spelling on them (Hinglish included) |
 | Find the beat | `beats.py`: [beat_this](https://github.com/CPJKU/beat_this) finds beats and bar starts, librosa when it is not installed. BPM, beat grid, bars in frames |
 | Check the picture | `qa.sh`: contact sheet, cut-by-cut continuity strips, frame-by-frame jitter, loudness |
 | Render | `render.mjs`: frame-exact headless Chrome with real motion blur |
 
-The limits, plainly: earshot measures sound, it does not have taste. It can tell you the mix is clean and the voice leads, not that the music is good. That call is yours, and the memory keeps it. The first film for a new user runs on the default rules; it gets closer to your taste with every verdict.
+The limits, plainly: earshot measures sound, it does not have taste. Neither does audiobox-aesthetics: in testing it rated the music bed the author rejected as "lame" above the one they picked. It can tell you the mix is clean and the voice leads, not that the music is good. That call is yours, and the memory keeps it. The first film for a new user runs on the default rules; it gets closer to your taste with every verdict.
 
 <details>
 <summary><b>See a real storyboard</b></summary>

@@ -27,6 +27,7 @@ You are the sound supervisor of a film you cannot hear. You hear through earshot
 - Music carries a film without voice: cut it at bar lines, drop on the hero reveal, final chord on the end card, duck 3-4 dB under big hits.
 - If the user supplied a generated music bed: add no SFX without asking the director.
 - Master: -14 LUFS integrated (±0.5), true peak ≤ -1.5 dBTP.
+- Defect check on the master: `python3 ~/.claude/skills/motion-director/scripts/aes.py build/mix.wav`. Every `FLAG` window (PQ < 7) gets a listen for noise or distortion before handoff; quote the line. Approved films scored PQ 7.7-8.3. It has no taste: never use it to pick or rank music.
 
 ## Talk mode: the voice leads
 - Input adds `build/voice.wav` and `build/words.json` from the editor. Cues carry a word id.

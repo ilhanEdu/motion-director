@@ -14,7 +14,7 @@ for r in director producer scriptwriter art-director asset-hunter editor sound-d
 done
 [ -f "$SK/templates/PROFILE.md" ] || fail "PROFILE template missing"
 for s in setup.sh qa.sh selftest.sh; do sh -n "$SK/scripts/$s" || fail "syntax: $s"; done
-python3 -m py_compile "$SK/scripts/archive.py" "$SK/scripts/langmix.py" "$SK/scripts/beats.py" "$SK/scripts/align.py" 2>/dev/null || fail "python syntax"
+python3 -m py_compile "$SK/scripts/archive.py" "$SK/scripts/langmix.py" "$SK/scripts/beats.py" "$SK/scripts/align.py" "$SK/scripts/aes.py" 2>/dev/null || fail "python syntax"
 python3 -I "$SK/scripts/align.py" --selftest >/dev/null || fail "align self-check"
 echo "Ab aapko lagega more volume" | python3 "$SK/scripts/langmix.py" >/dev/null || fail "langmix self-check"
 python3 -c "import json,sys; json.load(open(sys.argv[1]))" "$SK/templates/examples/storyboard.json" || fail "example storyboard json"
@@ -27,6 +27,7 @@ if [ "$1" = "--tools" ]; then
     "$MD/vendor/earshot-venv/bin/python" -m earshot describe "$T/t.wav" 2>/dev/null | grep -q "lufs" && echo "ok   earshot listens" || fail "earshot did not run"
   else echo "SKIP earshot (not installed: run setup.sh without --no-sound)"; fi
   b=$(uvx -q --with librosa python -I "$SK/scripts/beats.py" --selftest 2>/dev/null) && echo "$b" | sed 's/^beats selftest ok/ok   beats.py/' || fail "beats.py self-check (tempo or bars off on a known 90 BPM loop)"
+  a=$(python3 -I "$SK/scripts/aes.py" --selftest 2>/dev/null | tail -1); case "$a" in "aes selftest ok"*) echo "ok   aes.py${a#aes selftest ok}";; SKIP*) echo "$a";; *) fail "aes.py self-check (noise did not lower quality)";; esac
   uvx -q --from openai-whisper whisper --help >/dev/null 2>&1 && echo "ok   whisper" || fail "whisper did not start (Talk mode needs it)"
   rm -rf "$T"
 fi

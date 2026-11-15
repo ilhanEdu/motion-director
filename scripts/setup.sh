@@ -57,6 +57,16 @@ if [ "$1" != "--no-sound" ] && { [ ! -f "$BTCK" ] || [ ! -x "$V/beat-this-venv/b
   rm -f "$BTCK.part"
 fi
 
+# 3a2. audiobox-aesthetics 0.0.4 (CC-BY-4.0): defect check for voice takes and final mixes (scripts/aes.py). No taste: never picks music.
+# Weights are safetensors from Hugging Face, accepted only at the tested revision, kept in vendor/aes-hf (aes.py runs offline).
+AESW="$V/aes-hf/hub/models--facebook--audiobox-aesthetics/snapshots/9b1dd8e5df9af7216e836a98974fe3b82c56ded6/model.safetensors"
+if [ "$1" != "--no-sound" ] && { [ ! -f "$AESW" ] || [ ! -x "$V/aes-venv/bin/python" ]; } && command -v uv >/dev/null; then
+  echo "installing audiobox-aesthetics (torch + 415 MB weights)..."
+  uv venv -q --allow-existing --python 3.12 "$V/aes-venv"
+  uv pip install -q --python "$V/aes-venv/bin/python" audiobox_aesthetics==0.0.4 || echo "WARN audiobox-aesthetics install failed: aes.py will SKIP"
+  HF_HOME="$V/aes-hf" "$V/aes-venv/bin/python" -I -c "from huggingface_hub import snapshot_download as s; p = s('facebook/audiobox-aesthetics', allow_patterns=['config.json', 'model.safetensors']); assert p.endswith('9b1dd8e5df9af7216e836a98974fe3b82c56ded6'), 'new upstream revision, not tested: ' + p" 2>&1 | tail -1 || true
+fi
+
 # 3b. p5.brush storyboard renderer (p5 1.11.13 LGPL-2.1 + p5.brush 1.1.4 MIT), into vendor/ even when vendor is a symlink.
 B="$V/p5brush"
 if [ ! -f "$B/p5.brush-1.1.4/package/dist/p5.brush.js" ] && command -v npm >/dev/null; then
@@ -72,6 +82,7 @@ chk blender "optional, photoreal 3D: brew install --cask blender"; chk gh "optio
 [ -x "${CHROME:-/Applications/Google Chrome.app/Contents/MacOS/Google Chrome}" ] && echo "ok   chrome" || { echo "MISS Google Chrome (renderer + styleframes; or set CHROME=<path>)"; miss=1; }
 [ -x "$V/earshot-venv/bin/python" ] && echo "ok   earshot" || echo "MISS earshot  (re-run without --no-sound; needs uv)"
 [ -f "$BTCK" ] && [ -x "$V/beat-this-venv/bin/python" ] && echo "ok   beat_this" || echo "MISS beat_this  (optional: beats.py falls back to librosa; re-run setup.sh)"
+[ -f "$AESW" ] && [ -x "$V/aes-venv/bin/python" ] && echo "ok   audiobox-aesthetics" || echo "MISS audiobox-aesthetics  (optional: aes.py voice/mix defect check SKIPs; re-run setup.sh)"
 [ -f "$B/p5.brush-1.1.4/package/dist/p5.brush.js" ] && echo "ok   p5.brush (storyboards)" || { echo "MISS p5.brush (needs npm, then re-run setup.sh)"; miss=1; }
 command -v blender >/dev/null 2>&1 && echo "     blender: $(blender --version 2>/dev/null | head -1)"
 node -e 'process.exit(+process.versions.node.split(".")[0] >= 22 ? 0 : 1)' 2>/dev/null || echo "WARN node < 22: render.mjs needs the built-in WebSocket"
