@@ -105,7 +105,7 @@ Use Blender only when three.js cannot sell the material. It is slow: render a 10
 
 ## Audio tools
 
-- Beat map: `uvx --with librosa python -I ~/.claude/skills/motion-director/scripts/beats.py track.wav > build/beats.json` (a `max_drift_ms` over about 30 means the tempo wanders: cut on `raw` beats)
+- Beat map: `uvx --with librosa python -I ~/.claude/skills/motion-director/scripts/beats.py track.wav > build/beats.json` (a `max_drift_ms` over about 30 means the tempo wanders: cut on `raw` beats and `raw_bars`). `engine` says who measured it: `beat_this` (neural, real bar starts) or `librosa` (fallback, and always on trap where beat_this chases hi-hats). Bars assume 4/4; on a kick-on-1-and-3 loop with no chord changes, check beat 1 by ear.
 - Vetted music with measured BPM: `~/.claude/motion-director/memory/MUSIC.md`
 - Voice-led mix: `sidechaincompress` ducks the music under the voice (sound designer, Talk mode)
 - Loudness check: `scripts/qa.sh` prints integrated LUFS and true peak.

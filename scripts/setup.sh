@@ -43,6 +43,20 @@ if [ "$1" != "--no-sound" ] && [ ! -x "$V/earshot-venv/bin/python" ] && command 
   uv pip install -q --python "$V/earshot-venv/bin/python" -e "$V/Leonxlnx-earshot[mcp]"
 fi
 
+# 3a. beat_this (MIT code and weights): neural beats + downbeats for beats.py, which falls back to librosa without it.
+# Pinned commit; weights checked by sha256. Second URL: the co-author's mirror (CPJKU/beat_this issue 20) for when JKU is down.
+BTCK="$V/beat_this-final0.ckpt"
+if [ "$1" != "--no-sound" ] && { [ ! -f "$BTCK" ] || [ ! -x "$V/beat-this-venv/bin/python" ]; } && command -v uv >/dev/null; then
+  echo "installing beat_this (torch, about 900 MB)..."
+  uv venv -q --allow-existing --python 3.12 "$V/beat-this-venv"
+  uv pip install -q --python "$V/beat-this-venv/bin/python" "beat_this @ https://github.com/CPJKU/beat_this/archive/b95c8ab0c58c2d9fcfd40508ae8dffbc05ac4f5c.zip" || echo "WARN beat_this install failed: beats.py uses librosa"
+  for u in https://cloud.cp.jku.at/public.php/dav/files/7ik4RrBKTS273gp/final0.ckpt https://f0k.de/pubs/2024_ismir/beat_this-final0.ckpt; do
+    [ -f "$BTCK" ] && break
+    curl -sSfL -o "$BTCK.part" "$u" && [ "$(shasum -a 256 "$BTCK.part" | cut -d' ' -f1)" = 8c328b45f59d8dd3dff219253ff6a8d6482be57d0133a29140e2febbf8eb8331 ] && mv "$BTCK.part" "$BTCK"
+  done
+  rm -f "$BTCK.part"
+fi
+
 # 3b. p5.brush storyboard renderer (p5 1.11.13 LGPL-2.1 + p5.brush 1.1.4 MIT), into vendor/ even when vendor is a symlink.
 B="$V/p5brush"
 if [ ! -f "$B/p5.brush-1.1.4/package/dist/p5.brush.js" ] && command -v npm >/dev/null; then
@@ -57,6 +71,7 @@ chk uvx "brew install uv"; chk git "xcode-select --install"
 chk blender "optional, photoreal 3D: brew install --cask blender"; chk gh "optional, GitHub scouting: brew install gh"
 [ -x "${CHROME:-/Applications/Google Chrome.app/Contents/MacOS/Google Chrome}" ] && echo "ok   chrome" || { echo "MISS Google Chrome (renderer + styleframes; or set CHROME=<path>)"; miss=1; }
 [ -x "$V/earshot-venv/bin/python" ] && echo "ok   earshot" || echo "MISS earshot  (re-run without --no-sound; needs uv)"
+[ -f "$BTCK" ] && [ -x "$V/beat-this-venv/bin/python" ] && echo "ok   beat_this" || echo "MISS beat_this  (optional: beats.py falls back to librosa; re-run setup.sh)"
 [ -f "$B/p5.brush-1.1.4/package/dist/p5.brush.js" ] && echo "ok   p5.brush (storyboards)" || { echo "MISS p5.brush (needs npm, then re-run setup.sh)"; miss=1; }
 command -v blender >/dev/null 2>&1 && echo "     blender: $(blender --version 2>/dev/null | head -1)"
 node -e 'process.exit(+process.versions.node.split(".")[0] >= 22 ? 0 : 1)' 2>/dev/null || echo "WARN node < 22: render.mjs needs the built-in WebSocket"

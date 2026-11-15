@@ -26,7 +26,7 @@ if [ "$1" = "--tools" ]; then
   if [ -x "$MD/vendor/earshot-venv/bin/python" ]; then
     "$MD/vendor/earshot-venv/bin/python" -m earshot describe "$T/t.wav" 2>/dev/null | grep -q "lufs" && echo "ok   earshot listens" || fail "earshot did not run"
   else echo "SKIP earshot (not installed: run setup.sh without --no-sound)"; fi
-  uvx -q --with librosa python -I "$SK/scripts/beats.py" "$T/t.wav" 30 2>/dev/null | grep -q '"bpm"' && echo "ok   beats.py" || fail "beats.py did not run"
+  b=$(uvx -q --with librosa python -I "$SK/scripts/beats.py" --selftest 2>/dev/null) && echo "$b" | sed 's/^beats selftest ok/ok   beats.py/' || fail "beats.py self-check (tempo or bars off on a known 90 BPM loop)"
   uvx -q --from openai-whisper whisper --help >/dev/null 2>&1 && echo "ok   whisper" || fail "whisper did not start (Talk mode needs it)"
   rm -rf "$T"
 fi

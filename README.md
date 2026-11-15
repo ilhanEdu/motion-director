@@ -57,7 +57,7 @@ The agents are Claude subagents, each with a written job, its own inputs and out
 |---|---|
 | Hear the sound | [earshot](https://github.com/Leonxlnx/earshot): an audio model that tags sounds, scores speech vs music, and measures LUFS, peaks and onsets |
 | Time your words | Whisper word timestamps, then `align.py` puts the script's spelling on them (Hinglish included) |
-| Find the beat | `beats.py` (librosa): BPM, beat grid, downbeats in frames |
+| Find the beat | `beats.py`: [beat_this](https://github.com/CPJKU/beat_this) finds beats and bar starts, librosa when it is not installed. BPM, beat grid, bars in frames |
 | Check the picture | `qa.sh`: contact sheet, cut-by-cut continuity strips, frame-by-frame jitter, loudness |
 | Render | `render.mjs`: frame-exact headless Chrome with real motion blur |
 
