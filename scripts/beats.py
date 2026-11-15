@@ -45,34 +45,46 @@ def analyze(path, fps=60.0):
         raw, down, engine = librosa.frames_to_time(frames, sr=sr), None, "librosa"
     frames = librosa.time_to_frames(raw, sr=sr)
     # A line through the beats gives an exact tempo (librosa's own estimate is quantised: read 136 on a 140 BPM track).
+    # Each beat is numbered by time / median beat length, so a skipped or extra beat (beat_this does both in quiet
+    # bars) cannot shift the rest of the grid.
     # ponytail: assumes constant tempo; when max_drift_ms > 100, cut on "raw" (the real beats), not the fitted grid.
-    slope, offset = np.polyfit(np.arange(len(raw)), raw, 1)
+    med = np.median(np.diff(raw)); keep = [raw[0]]
+    for t in raw[1:]:  # drop extra half-beats (beat_this adds them in busy passages)
+        if t - keep[-1] >= 0.75 * med: keep.append(t)
+    raw = np.array(keep); frames = librosa.time_to_frames(raw, sr=sr)
+    idx = np.r_[0, np.cumsum(np.round(np.diff(raw) / med))].astype(int)
+    slope, offset = np.polyfit(idx, raw, 1)
     bpm = 60 / slope
-    beats = offset + np.arange(len(raw)) * slope
+    beats = offset + np.arange(idx[-1] + 1) * slope
 
     # Downbeat phase (0-3) in 4/4. beat_this: the phase most of its downbeats land on.
     # librosa: the phase with the most kick (low-band onset) plus chord change. The old full-band
     # onset picked the snare (beat 2 or 4) and scored 0 on plain 4/4 loops.
     # ponytail: 4/4 only; a 3/4 or 6/8 track needs its bars set by ear.
+    raw_bars = down
     if down is not None and len(down):
-        idx = [int(np.argmin(np.abs(raw - t))) for t in down]
-        phase = int(np.bincount([i % 4 for i in idx], minlength=4).argmax())
+        keep = [down[0]]  # beat_this adds half-bar downbeats in busy passages: keep those a real bar apart
+        for t in down[1:]:
+            if t - keep[-1] >= 3 * slope: keep.append(t)
+        down = raw_bars = np.array(keep)
+        phase = int(np.bincount(np.round((down - offset) / slope).astype(int) % 4, minlength=4).argmax())
     elif len(raw) >= 8:
         low = librosa.onset.onset_strength(y=y, sr=sr, fmax=200, n_mels=32)
         chroma = librosa.feature.chroma_cqt(y=y, sr=sr)
         f = np.minimum(frames, chroma.shape[1] - 1)
         change = np.r_[0, np.linalg.norm(np.diff(chroma[:, f], axis=1), axis=0)]
         score = low[np.minimum(frames, len(low) - 1)] / (low.max() + 1e-9) + change / (change.max() + 1e-9)
-        phase = int(np.argmax([score[p::4].mean() for p in range(4)]))
+        p = int(np.argmax([score[p::4].mean() for p in range(4)]))
+        phase, raw_bars = int(idx[p]) % 4, raw[p::4]
     else:
-        phase = 0
+        phase, raw_bars = 0, raw[::4]
 
     # Drops: beats where RMS jumps most versus the previous bar.
     # ponytail: naive energy-jump heuristic; check drops by ear before cutting on them.
     rms = librosa.feature.rms(y=y)[0]
     e = rms[np.minimum(frames, len(rms) - 1)]
     jump = np.array([e[i] - e[max(0, i - 4):i].mean() if i >= 4 else 0 for i in range(len(e))])
-    drops = sorted(float(beats[i]) for i in np.argsort(jump)[-3:] if jump[i] > 0)
+    drops = sorted(float(raw[i]) for i in np.argsort(jump)[-3:] if jump[i] > 0)
 
     return {
         "engine": engine,
@@ -81,11 +93,11 @@ def analyze(path, fps=60.0):
         "frames_per_beat": round(fps * 60 / bpm, 3) if bpm else None,
         "duration": round(len(y) / sr, 3),
         "downbeat_phase": phase,
-        "max_drift_ms": round(float(np.abs(raw - beats).max() * 1000), 1),
+        "max_drift_ms": round(float(np.abs(raw - (offset + idx * slope)).max() * 1000), 1),
         "beats": [round(float(t), 4) for t in beats],
         "raw": [round(float(t), 4) for t in raw],
         "bars": [round(float(t), 4) for t in beats[phase::4]],
-        "raw_bars": [round(float(t), 4) for t in raw[phase::4]],
+        "raw_bars": [round(float(t), 4) for t in raw_bars],
         "drops": [round(t, 4) for t in drops],
     }
 

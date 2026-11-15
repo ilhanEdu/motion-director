@@ -52,7 +52,7 @@ if [ "$1" != "--no-sound" ] && { [ ! -f "$BTCK" ] || [ ! -x "$V/beat-this-venv/b
   uv pip install -q --python "$V/beat-this-venv/bin/python" "beat_this @ https://github.com/CPJKU/beat_this/archive/b95c8ab0c58c2d9fcfd40508ae8dffbc05ac4f5c.zip" || echo "WARN beat_this install failed: beats.py uses librosa"
   for u in https://cloud.cp.jku.at/public.php/dav/files/7ik4RrBKTS273gp/final0.ckpt https://f0k.de/pubs/2024_ismir/beat_this-final0.ckpt; do
     [ -f "$BTCK" ] && break
-    curl -sSfL -o "$BTCK.part" "$u" && [ "$(shasum -a 256 "$BTCK.part" | cut -d' ' -f1)" = 8c328b45f59d8dd3dff219253ff6a8d6482be57d0133a29140e2febbf8eb8331 ] && mv "$BTCK.part" "$BTCK"
+    curl -sfL -o "$BTCK.part" "$u" && [ "$(shasum -a 256 "$BTCK.part" | cut -d' ' -f1)" = 8c328b45f59d8dd3dff219253ff6a8d6482be57d0133a29140e2febbf8eb8331 ] && mv "$BTCK.part" "$BTCK"
   done
   rm -f "$BTCK.part"
 fi
